@@ -25,17 +25,25 @@ fn main() {
 
     // get fortunes
     let filename = matches.value_of("file").unwrap().to_owned();
-    let fortune_file = fs::read_to_string(filename).unwrap();
+    let fortune_file = fs::read_to_string(filename).expect("Cannot read fortune file");
     let fortunes: Vec<&str> = fortune_file.split('%').collect();
 
     // filter by max length
-    let max_length = matches.value_of("length").unwrap().parse::<usize>().unwrap();
-    let filtered = fortunes.into_iter().filter(|x| x.len() < max_length).collect::<Vec<&str>>();
+    let max_length = matches
+        .value_of("length")
+        .unwrap()
+        .parse::<usize>()
+        .expect("Length is not a valid number");
+    let filtered = fortunes
+        .into_iter()
+        .filter(|x| x.replace(" ", "").len() < max_length)
+        .collect::<Vec<&str>>();
 
     // get a random one
     let total_fortunes = filtered.len();
     let random_fortune = rand::thread_rng().gen_range(0, total_fortunes);
 
-    // print
-    println!("{}", filtered.get(random_fortune).unwrap());
+    // print the fortune
+    let the_fortune = filtered.get(random_fortune).unwrap().trim();
+    println!("{}", the_fortune);
 }
