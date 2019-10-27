@@ -4,7 +4,8 @@ use clap::{Arg, App};
 
 struct Options {
     filename: String,
-    length: usize
+    length: usize,
+    long_fortunes: bool
 }
 
 fn main() {
@@ -25,16 +26,22 @@ fn main() {
             .default_value("160")
             .help("Set the longest fortune length (in characters) considered to be 'short'. All fortunes longer than this are considered 'long'.")
             .takes_value(true)
-            .value_name("length"));
+            .value_name("length"))
+        .arg(Arg::with_name("long")
+            .short("l")
+            .long("long")
+            .help("only return long fortunes")
+            .takes_value(false));
     let options = parse_options(app);
 
     // get fortunes
     let fortunes = get_fortunes(options.filename.clone());
 
     // filter by max length
+    let filter_fn = if options.long_fortunes { filter_short } else { filter_long };
     let filtered = fortunes
         .into_iter()
-        .filter(|x| x.replace(" ", "").len() < options.length)
+        .filter(|x| filter_fn(x, options.length))
         .collect::<Vec<String>>();
 
     // get a random one
@@ -42,11 +49,20 @@ fn main() {
     println!("{}", the_fortune);
 }
 
+fn filter_long(x: &str, max_length: usize) -> bool {
+    return x.replace(" ", "").len() < max_length;
+}
+
+fn filter_short(x: &str, max_length: usize) -> bool {
+    return x.replace(" ", "").len() > max_length;
+}
+
 fn parse_options(app: App) -> Options {
     let matches = app.get_matches();
     let options: Options = Options {
         filename: matches.value_of("file").unwrap().to_owned(),
-        length: matches.value_of("length").unwrap().parse::<usize>().expect("Length is not a valid number")
+        length: matches.value_of("length").unwrap().parse::<usize>().expect("Length is not a valid number"),
+        long_fortunes: matches.is_present("long")
     };
 
     return options;
