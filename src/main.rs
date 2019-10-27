@@ -18,7 +18,7 @@ fn main() {
         .arg(Arg::with_name("length")
             .short("n")
             .default_value("160")
-            .help("Set the longest fortune length (in characters) considered to be 'short'. All fortunes longer than this are considered 'long'. Be careful! If you set the length too short and ask for short fortunes, or too long and ask for long ones, fortune goes into a never-ending thrash loop.")
+            .help("Set the longest fortune length (in characters) considered to be 'short'. All fortunes longer than this are considered 'long'.")
             .takes_value(true)
             .value_name("length"));
     let matches = app.get_matches();

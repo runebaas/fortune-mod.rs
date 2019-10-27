@@ -10,3 +10,4 @@ Build:
       - target
   script:
     - cargo build --verbose
+    - ./target/debug/fortune-rs
