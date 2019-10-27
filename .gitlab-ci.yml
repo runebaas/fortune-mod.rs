@@ -1,0 +1,12 @@
+stages:
+  - build
+
+Build:
+  stage: build
+  image: rust
+  cache:
+    key: global
+    paths:
+      - target
+  script:
+    - cargo build --verbose
