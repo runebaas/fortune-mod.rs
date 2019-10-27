@@ -2,6 +2,11 @@ use std::fs;
 use rand::prelude::*;
 use clap::{Arg, App};
 
+struct Options {
+    filename: String,
+    length: usize
+}
+
 fn main() {
     // specify app
     let app = App::new("Fortune.rs")
@@ -21,24 +26,30 @@ fn main() {
             .help("Set the longest fortune length (in characters) considered to be 'short'. All fortunes longer than this are considered 'long'.")
             .takes_value(true)
             .value_name("length"));
-    let matches = app.get_matches();
-
-    // input variables
-    let filename = matches.value_of("file").unwrap().to_owned();
-    let max_length = matches.value_of("length").unwrap().parse::<usize>().expect("Length is not a valid number");
+    let options = parse_options(app);
 
     // get fortunes
-    let fortunes = get_fortunes(filename);
+    let fortunes = get_fortunes(options.filename.clone());
 
     // filter by max length
     let filtered = fortunes
         .into_iter()
-        .filter(|x| x.replace(" ", "").len() < max_length)
+        .filter(|x| x.replace(" ", "").len() < options.length)
         .collect::<Vec<String>>();
 
     // get a random one
     let the_fortune = get_random_fortune(filtered);
     println!("{}", the_fortune);
+}
+
+fn parse_options(app: App) -> Options {
+    let matches = app.get_matches();
+    let options: Options = Options {
+        filename: matches.value_of("file").unwrap().to_owned(),
+        length: matches.value_of("length").unwrap().parse::<usize>().expect("Length is not a valid number")
+    };
+
+    return options;
 }
 
 fn get_fortunes(filename: String) -> Vec<String> {
