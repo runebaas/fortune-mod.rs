@@ -7,6 +7,7 @@ struct Options {
     filename: String,
     length: usize,
     long_fortunes: bool,
+    short_fortunes: bool,
     wait: bool
 }
 
@@ -34,7 +35,14 @@ fn main() {
             .short("l")
             .long("long")
             .help("only return long fortunes")
-            .takes_value(false))
+            .takes_value(false)
+            .conflicts_with("short"))
+        .arg(Arg::with_name("short")
+            .short("s")
+            .long("short")
+            .help("only return short fortunes")
+            .takes_value(false)
+            .conflicts_with("long"))
         .arg(Arg::with_name("wait")
             .short("w")
             .long("wait")
@@ -42,17 +50,19 @@ fn main() {
     let options = parse_options(app);
 
     // get fortunes
-    let fortunes = get_fortunes(options.filename.clone());
+    let mut fortunes = get_fortunes(options.filename.clone());
 
     // filter by max length
-    let filter_fn = if options.long_fortunes { filter_short } else { filter_long };
-    let filtered = fortunes
-        .into_iter()
-        .filter(|x| filter_fn(x, options.length))
-        .collect::<Vec<String>>();
+    if options.short_fortunes || options.long_fortunes {
+        let filter_fn = if options.long_fortunes { filter_short } else { filter_long };
+        fortunes = fortunes
+            .into_iter()
+            .filter(|x| filter_fn(x, options.length))
+            .collect::<Vec<String>>();
+    }
 
     // get a random one
-    let the_fortune = get_random_fortune(filtered);
+    let the_fortune = get_random_fortune(fortunes);
     println!("{}", the_fortune);
 
     if options.wait {
@@ -73,6 +83,7 @@ fn parse_options(app: App) -> Options {
     let options: Options = Options {
         filename: matches.value_of("file").unwrap().to_owned(),
         length: matches.value_of("length").unwrap().parse::<usize>().expect("Length is not a valid number"),
+        short_fortunes: matches.is_present("short"),
         long_fortunes: matches.is_present("long"),
         wait: matches.is_present("wait")
     };
