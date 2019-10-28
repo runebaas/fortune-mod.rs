@@ -1,4 +1,4 @@
-use std::{fs, thread, time};
+use std::{fs, thread, time, path, process};
 use std::convert::TryFrom;
 use rand::prelude::*;
 use clap::{Arg, App};
@@ -92,6 +92,10 @@ fn parse_options(app: App) -> Options {
 }
 
 fn get_fortunes(filename: String) -> Vec<String> {
+    if !path::Path::new(&filename).exists() {
+        println!("File '{}' does not found", filename);
+        process::exit(1);
+    }
     let fortune_file = fs::read_to_string(filename).expect("Cannot read fortune file");
     let fortunes: Vec<String> = fortune_file.split('%').map(ToOwned::to_owned).collect();
 
