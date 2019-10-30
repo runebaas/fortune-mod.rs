@@ -10,6 +10,6 @@ It's primarily an educational project in which i aim to completely reimplement t
 - [x] Specify a cutoff for what is considered a short fortune (the `-n` flag)
 - [x] Specify whether a short or a long fortune should be printed (the `-l` flag)
 - [x] Wait n amount of seconds before the program exits (the `-w` flag)
+- [x] Allow to filter with a pattern (the `-m` flag)
+- [x] Ignore case for the pattern (the `-i` flag)
 - [ ] Allow multiple fortune cookie files
-- [ ] Allow to filter with a pattern (the `-m` flag)
-- [ ] Ignore case for the pattern (the `-i` flag)
