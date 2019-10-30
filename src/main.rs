@@ -1,15 +1,9 @@
-use std::{fs, thread, time, path, process};
-use std::convert::TryFrom;
-use rand::prelude::*;
-use clap::{Arg, App};
+mod filters;
+mod utils;
 
-struct Options {
-    filename: String,
-    length: usize,
-    long_fortunes: bool,
-    short_fortunes: bool,
-    wait: bool
-}
+use crate::utils::*;
+use clap::{App, Arg};
+use rand::prelude::*;
 
 fn main() {
     // specify app
@@ -46,79 +40,47 @@ fn main() {
         .arg(Arg::with_name("wait")
             .short("w")
             .long("wait")
-            .help("Wait before termination for an amount of time calculated from the number of characters in the message. (20 characters = 1 second, mim 6 seconds)"));
-    let options = parse_options(app);
+            .help("Wait before termination for an amount of time calculated from the number of characters in the message. (20 characters = 1 second, mim 6 seconds)"))
+        .arg(Arg::with_name("pattern")
+            .short("m")
+            .help("Print out all fortunes which match the basic regular expression pattern.")
+            .takes_value(true))
+        .arg(Arg::with_name("case_insensitive")
+            .short("i")
+            .help("Ignore case for -m patterns. ")
+            .takes_value(false));
+    let options = options_parser::parse(app);
 
     // get fortunes
-    let mut fortunes = get_fortunes(options.filename.clone());
+    let mut fortunes = fortunes_reader::get_all(options.filename.clone());
 
     // filter by max length
     if options.short_fortunes || options.long_fortunes {
-        let filter_fn = if options.long_fortunes { filter_short } else { filter_long };
-        fortunes = fortunes
-            .into_iter()
-            .filter(|x| filter_fn(x, options.length))
-            .collect::<Vec<String>>();
+        fortunes = crate::filters::length::filter(fortunes, &options);
+    }
+
+    // apply the pattern
+    if options.pattern != String::new() {
+        fortunes = crate::filters::pattern::filter(fortunes, &options)
     }
 
     // get a random one
     let the_fortune = get_random_fortune(fortunes);
+
+    // print it ✨
     println!("{}", the_fortune);
 
     if options.wait {
-        wait(the_fortune)
+        waiter::wait(the_fortune)
     }
-}
-
-fn filter_long(x: &str, max_length: usize) -> bool {
-    return x.replace(" ", "").len() < max_length;
-}
-
-fn filter_short(x: &str, max_length: usize) -> bool {
-    return x.replace(" ", "").len() > max_length;
-}
-
-fn parse_options(app: App) -> Options {
-    let matches = app.get_matches();
-    let options: Options = Options {
-        filename: matches.value_of("file").unwrap().to_owned(),
-        length: matches.value_of("length").unwrap().parse::<usize>().expect("Length is not a valid number"),
-        short_fortunes: matches.is_present("short"),
-        long_fortunes: matches.is_present("long"),
-        wait: matches.is_present("wait")
-    };
-
-    return options;
-}
-
-fn get_fortunes(filename: String) -> Vec<String> {
-    if !path::Path::new(&filename).exists() {
-        println!("File '{}' does not found", filename);
-        process::exit(1);
-    }
-    let fortune_file = fs::read_to_string(filename).expect("Cannot read fortune file");
-    let fortunes: Vec<String> = fortune_file.split('%').map(ToOwned::to_owned).collect();
-
-    return fortunes;
 }
 
 fn get_random_fortune(fortunes: Vec<String>) -> String {
     let total_fortunes = fortunes.len();
+    if total_fortunes == 0 {
+        return "No Fortunes found with these parameters...".to_owned();
+    }
     let random_fortune = rand::thread_rng().gen_range(0, total_fortunes);
 
-    return fortunes.get(random_fortune).unwrap().trim().to_owned();
-}
-
-fn wait(fortune: String) {
-    let characters_per_second = 20; // as defined in the original fortune command
-    let minimum_wait = 6; // seconds
-    let mut time_to_wait = fortune.len() / characters_per_second;
-    if time_to_wait < minimum_wait {
-        time_to_wait = minimum_wait;
-    }
-
-    let fortune_length = u64::try_from(time_to_wait).unwrap();
-    let time_to_wait = time::Duration::from_secs(fortune_length);
-
-    thread::sleep(time_to_wait);
+    fortunes.get(random_fortune).unwrap().trim().to_owned()
 }
