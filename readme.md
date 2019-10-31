@@ -12,4 +12,5 @@ It's primarily an educational project in which i aim to completely reimplement t
 - [x] Wait n amount of seconds before the program exits (the `-w` flag)
 - [x] Allow to filter with a pattern (the `-m` flag)
 - [x] Ignore case for the pattern (the `-i` flag)
-- [ ] Allow multiple fortune cookie files
+- [x] Allow multiple fortune cookie files
+- [ ] Implement the `-f` flag
