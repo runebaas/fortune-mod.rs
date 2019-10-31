@@ -3,7 +3,6 @@ mod utils;
 
 use crate::utils::*;
 use clap::{App, Arg};
-use rand::prelude::*;
 
 fn main() {
     // specify app
@@ -48,11 +47,23 @@ fn main() {
         .arg(Arg::with_name("case_insensitive")
             .short("i")
             .help("Ignore case for -m patterns. ")
+            .takes_value(false))
+        .arg(Arg::with_name("show_cookie")
+            .short("c")
+            .help("Show the cookie file from which the fortune came.")
             .takes_value(false));
     let options = options_parser::parse(app);
 
     // get fortunes
-    let mut fortunes = fortunes_reader::get_all(options.filename.clone());
+    let cookie = match fortunes_reader::get_random_cookie() {
+        Some(fortunes) => fortunes,
+        None => {
+            println!("No fortune files found");
+            std::process::exit(1);
+        }
+    };
+
+    let mut fortunes = cookie.fortunes;
 
     // filter by max length
     if options.short_fortunes || options.long_fortunes {
@@ -65,7 +76,18 @@ fn main() {
     }
 
     // get a random one
-    let the_fortune = get_random_fortune(fortunes);
+    let the_fortune = match helpers::get_random_from_vec(fortunes) {
+        Some(f) => f,
+        None => {
+            println!("No fortunes found with these parameters");
+            std::process::exit(1);
+        }
+    };
+
+    // reveal the cookie
+    if options.show_cookie {
+        println!("({})\n%", cookie.name);
+    }
 
     // print it ✨
     println!("{}", the_fortune);
@@ -73,14 +95,4 @@ fn main() {
     if options.wait {
         waiter::wait(the_fortune)
     }
-}
-
-fn get_random_fortune(fortunes: Vec<String>) -> String {
-    let total_fortunes = fortunes.len();
-    if total_fortunes == 0 {
-        return "No Fortunes found with these parameters...".to_owned();
-    }
-    let random_fortune = rand::thread_rng().gen_range(0, total_fortunes);
-
-    fortunes.get(random_fortune).unwrap().trim().to_owned()
 }

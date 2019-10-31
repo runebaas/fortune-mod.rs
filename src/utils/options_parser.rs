@@ -17,6 +17,7 @@ pub fn parse(app: App) -> Parameters {
             None => String::new(),
         },
         case_insensitive: matches.is_present("case_insensitive"),
+        show_cookie: matches.is_present("show_cookie"),
     };
 
     options
@@ -33,4 +34,6 @@ pub struct Parameters {
 
     pub pattern: String,
     pub case_insensitive: bool,
+
+    pub show_cookie: bool,
 }
