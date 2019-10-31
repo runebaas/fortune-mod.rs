@@ -16,25 +16,18 @@ pub fn get_random_cookie() -> Option<Cookie> {
 }
 
 fn find_fortune_files() -> Vec<String> {
-    let locations = get_paths();
-    let mut all_files: Vec<String> = vec![];
-
-    for loc in locations {
-        let full_path = path::Path::new(&loc);
-        if full_path.exists() {
-            if let Ok(files) = fs::read_dir(full_path.canonicalize().unwrap()) {
-                for file in files {
-                    if let Ok(f) = file {
-                        if is_fortfile(&f.path().to_str().unwrap()) {
-                            all_files.push(f.path().to_str().unwrap().to_owned());
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    all_files
+    get_paths()
+        .into_iter()
+        .map(|loc| path::Path::new(&loc).to_owned())
+        .filter(|loc| loc.exists())
+        .filter_map(|full_path| fs::read_dir(full_path.canonicalize().unwrap()).ok())
+        .flat_map(|files| {
+            files
+                .filter_map(|file| file.ok())
+                .map(|file| file.path().to_str().unwrap().to_owned())
+        })
+        .filter(|file_path| is_fortfile(file_path))
+        .collect::<Vec<_>>()
 }
 
 fn is_fortfile(path: &str) -> bool {
