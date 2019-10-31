@@ -3,7 +3,6 @@ use clap::App;
 pub fn parse(app: App) -> Parameters {
     let matches = app.get_matches();
     let options: Parameters = Parameters {
-        filename: matches.value_of("file").unwrap().to_owned(),
         length: matches
             .value_of("length")
             .unwrap()
@@ -24,8 +23,6 @@ pub fn parse(app: App) -> Parameters {
 }
 
 pub struct Parameters {
-    pub filename: String,
-
     pub length: usize,
     pub long_fortunes: bool,
     pub short_fortunes: bool,
