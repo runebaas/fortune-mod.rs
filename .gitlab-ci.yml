@@ -10,4 +10,5 @@ Build:
       - target
   script:
     - cargo build --verbose
+    - (apt update && apt install -y fortunes) > /dev/null
     - ./target/debug/fortune-rs
