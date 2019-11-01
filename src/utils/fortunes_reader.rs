@@ -51,7 +51,7 @@ fn get_paths() -> Vec<String> {
 
 #[cfg(unix)]
 fn get_paths() -> Vec<String> {
-    own_vec(vec!["./fortunes", "./cookies", "/usr/share/games/fortunes"])
+    own_vec(vec!["./fortunes", "/usr/share/fortune", "/usr/share/games/fortunes"])
 }
 
 pub struct Cookie {
