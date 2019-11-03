@@ -3,6 +3,7 @@ mod utils;
 
 use crate::utils::*;
 use clap::{App, Arg};
+use std::path::Path;
 
 fn main() {
     // specify app
@@ -79,7 +80,8 @@ fn main() {
 
     // reveal the cookie
     if options.show_cookie {
-        println!("({})\n%", cookie.name);
+        let cookie_file = Path::new(&cookie.name).file_name().unwrap().to_str().unwrap();
+        println!("({})\n%", cookie_file);
     }
 
     // print it ✨
