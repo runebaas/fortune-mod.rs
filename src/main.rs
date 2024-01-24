@@ -97,7 +97,11 @@ fn main() {
 
     // reveal the cookie
     if options.show_cookie {
-        let cookie_file = Path::new(&cookie.name).file_name().unwrap().to_str().unwrap();
+        let cookie_file = Path::new(&cookie.name)
+            .file_name()
+            .unwrap()
+            .to_str()
+            .unwrap();
         println!("({})\n%", cookie_file);
     }
 
