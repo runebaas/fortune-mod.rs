@@ -14,9 +14,9 @@ pub fn filter(fortunes: Vec<String>, options: &Parameters) -> Vec<String> {
 }
 
 fn filter_long(x: &str, max_length: usize) -> bool {
-    x.replace(" ", "").len() < max_length
+    x.replace(' ', "").len() < max_length
 }
 
 fn filter_short(x: &str, max_length: usize) -> bool {
-    x.replace(" ", "").len() > max_length
+    x.replace(' ', "").len() > max_length
 }

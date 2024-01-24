@@ -5,7 +5,7 @@ pub fn get_random_from_vec(vector: Vec<String>) -> Option<String> {
     if length == 0 {
         return None;
     }
-    let random_element = rand::thread_rng().gen_range(0, length);
+    let random_element = thread_rng().gen_range(0..length);
 
     Some(vector.get(random_element).unwrap().to_owned())
 }

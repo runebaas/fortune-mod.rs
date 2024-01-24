@@ -9,10 +9,10 @@ pub fn filter(fortunes: Vec<String>, params: &Parameters) -> Vec<String> {
     };
     let regex = match Regex::new(&pattern) {
         Ok(regex) => regex,
-        Err(err) => panic!(format!(
+        Err(err) => panic!(
             "Pattern \"{}\" is not a valid regex pattern: {}",
             params.pattern, err
-        )),
+        ),
     };
 
     fortunes
